@@ -22,12 +22,22 @@ class Game {
         this.snake = new Snake(CENTER.x, CENTER.y, 3);
         this.timer = 0;
         this.keys = [];
+        this.hungry = true;
+        this.food = {
+            x: this.getNearest(this.getRandomInt(0, CANVAS.width)),
+            y: this.getNearest(this.getRandomInt(0, CANVAS.height))
+        };
         document.addEventListener("keydown", e => this.keys[e.keyCode] = true);
         document.addEventListener("keyup", e => this.keys[e.keyCode] = false);
     }
 
     draw() {
         this.clearScreen();
+
+        if (this.hungry) {
+            CONTEXT.fillStyle = "orange";
+            CONTEXT.fillRect(this.food.x, this.food.y, TILE_SIZE, TILE_SIZE);    
+        }
 
         CONTEXT.fillStyle = "pink";
         CONTEXT.fillRect(this.snake.x, this.snake.y, TILE_SIZE, TILE_SIZE);
@@ -77,6 +87,17 @@ class Game {
                 this.snake.x -= TILE_SIZE;
         }
 
+        if (this.snake.x == this.food.x && this.snake.y == this.food.y) {
+            this.hungry = false;
+            this.snake.addItem(this.snake.x, this.snake.y);
+        }
+
+
+        if (!this.hungry) {
+            this.food.x = this.getNearest(this.getRandomInt(0, CANVAS.width));
+            this.food.y = this.getNearest(this.getRandomInt(0, CANVAS.height));
+            this.hungry = true;
+        }
 
         this.draw();
 
@@ -93,6 +114,15 @@ class Game {
     stop() {
         this.running = false;
     }
+
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    getNearest(number) {
+        return Math.floor(number / TILE_SIZE) * TILE_SIZE;
+    }
+
 }
 
 class Snake {
